@@ -8,11 +8,6 @@ export class HttpException extends Error {
   }
 }
 
-export class InternalServerError extends HttpException {
-  constructor() {
-    super(500, `Internal Server Error`)
-  }
-}
 
 export class NotFound extends HttpException {
   constructor(item: string) {
@@ -23,5 +18,12 @@ export class NotFound extends HttpException {
 export class TooManyRequests extends HttpException {
   constructor() {
     super(429, `Too Many Requests`)
+  }
+}
+
+
+export class InternalServerError extends HttpException {
+  constructor() {
+    super(500, `Internal Server Error`)
   }
 }

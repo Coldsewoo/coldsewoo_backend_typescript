@@ -1,4 +1,4 @@
-import { IsString, Validate } from "class-validator"
+import { IsString, Validate, IsNumber } from "class-validator"
 import { IsValidRoles, IsValidEmail } from "./user.validation.classes"
 
 class CreateUserDto {
@@ -7,6 +7,9 @@ class CreateUserDto {
 
   @IsString()
   public nickname: string
+
+  @IsString()
+  public password: string
 
   @Validate(IsValidEmail)
   public email: string

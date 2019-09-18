@@ -1,21 +1,33 @@
 import 'dotenv/config'
 import 'reflect-metadata'
-import { createConnection } from 'typeorm'
 import validateEnv from './utils/validateEnv'
-import ormConfig from './config/ormconfig'
 import App from './app'
 import postsController from './routes/posts/post.controller'
-import usersController from "./routes/users/user.controller"
+import UsersController from "./routes/users/user.controller"
+import AuthContoller from "./routes/auth/auth.controller"
+import ImageController from "./routes/images/image.controller"
+import BlogController from "./routes/blog/blog.controller"
+
+// TypeORM for the Postgres (if needed later)
+//  import { createConnection } from 'typeorm'
+//  import ormConfig from './config/ormconfig'
 
 // dotenv validation
 validateEnv();
 (async () => {
   try {
-    // Connect to Database before listening to the main PORT
-    await createConnection(ormConfig)
-    console.log(`Connected to Database: ${process.env.TYPEORM_CONNECTION}/${process.env.TYPEORM_HOST}/${process.env.TYPEORM_PORT}`)
-  } finally {
-    const app = new App([new postsController(), new usersController()])
-    app.listen()
+    // will do something async works before listening to the PORT if needed
+  } catch (err) {
+    console.log(err)
+    process.exit(1)
   }
+
+  const app = new App([
+    new AuthContoller(),
+    new UsersController(),
+    new postsController(),
+    new ImageController(),
+    new BlogController()
+  ])
+  app.listen()
 })()

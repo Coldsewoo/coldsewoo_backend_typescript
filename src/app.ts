@@ -3,12 +3,14 @@ import * as morgan from 'morgan'
 import * as bodyParser from 'body-parser'
 import * as express from 'express'
 import * as redis from 'redis'
+import * as mongoose from "mongoose"
 import { RateLimiterRedis } from 'rate-limiter-flexible'
 import { Request, Response, NextFunction } from 'express'
 import Controller from './interfaces/controller.interface'
 import errorMiddleware from './middleware/error.middleware'
 import redisConfig from './config/redisconfig'
 import { TooManyRequests } from './exceptions/HttpException'
+
 
 export default class App {
   public app: express.Application
@@ -20,6 +22,7 @@ export default class App {
     this.initilizeRateLimiterRedis()
     this.initializeControllers(controllers)
     this.initializeErrorHandling()
+    this.connetToDatabase()
   }
 
   public listen() {
@@ -69,7 +72,7 @@ export default class App {
     redisClient.on('connect', () => {
       console.log('Connected to Redis')
     })
-    const rateLimiterRedis = new RateLimiterRedis({
+    const rateLimiterRedis: RateLimiterRedis = new RateLimiterRedis({
       storeClient: redisClient,
       points: redisConfig.points,
       duration: redisConfig.duration,
@@ -84,5 +87,18 @@ export default class App {
         })
     }
     this.app.use(rateLimiterMiddleware)
+  }
+
+  private connetToDatabase = () => {
+    mongoose.set("useCreateIndex", true)
+    mongoose.set("useFindAndModify", false)
+    const MONGO_URI = process.env.MONGODB_LOCAL
+    mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    const mongodb = mongoose.connection
+    mongodb.once("open", function () {
+      console.log(`Mongoose connected to
+       ${MONGO_URI}`)
+    })
+
   }
 }

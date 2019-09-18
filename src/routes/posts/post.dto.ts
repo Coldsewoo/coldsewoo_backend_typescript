@@ -2,11 +2,11 @@ import { IsString } from 'class-validator'
 
 export default class CreatePostDto {
   @IsString()
-  public author: string
+  public username: string
 
   @IsString()
-  public content: string
+  public userNickname: string
 
   @IsString()
-  public title: string
+  public userAvatar: string
 }
