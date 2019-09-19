@@ -9,7 +9,7 @@ import Controller from "interfaces/controller.interface"
 import ExceptionLogger from '../../exceptions/ExceptionLogger'
 import { RequestWithUser } from "../../interfaces/auth.interface"
 import { NotFound } from "../../exceptions/HttpException"
-import { NoAuthorization } from "exceptions/HttpAuthException"
+import { NoAuthorization } from "../../exceptions/HttpAuthException"
 
 type QuerySnapShot = FirebaseFirestore.QuerySnapshot
 type QueryDocumentSnapshot = FirebaseFirestore.QueryDocumentSnapshot
@@ -36,7 +36,7 @@ export default class BlogController implements Controller {
     this.router.delete(`${this.path}/articles/:id`, util.isLoggedin, util.authLevel, this.deleteArticle)
     this.router.put(`${this.path}/rename/:_id`, util.isLoggedin, this.renameImages)
     this.router.get(`${this.path}/comments/:id`, this.getComments)
-    this.router.post(`${this.path}/:id`, util.isLoggedin, util.authLevel, this.addComment)
+    this.router.post(`${this.path}/comments/:id`, util.isLoggedin, util.authLevel, this.addComment)
     this.router.delete(`${this.path}/comments/:articleId/:commentId/:replyId`, util.isLoggedin, util.authLevel, this.deleteCommentReply)
     this.router.delete(`${this.path}/comments/:articleId/:commentId`, util.isLoggedin, util.authLevel, this.deleteComment)
     this.router.put(`${this.path}/comments/:articleId/:commentId`, util.isLoggedin, util.authLevel, this.editComment)
@@ -72,7 +72,7 @@ export default class BlogController implements Controller {
       let articlesLength: string | number = articles.docs.length
       articlesLength = this.pad(articlesLength + 1, 3)
       const articleId: string = payload.articleId ? payload.articleId : `${today}${articlesLength}`
-
+      payload.articleId = articleId
       const categoryItem = payload.categories
       const categorySplit = categoryItem.split("/")
       payload.categories = {
@@ -81,12 +81,13 @@ export default class BlogController implements Controller {
         menu: categorySplit[1] ? categorySplit[1] : null,
         submenu: categorySplit[2] ? categorySplit[2] : null,
       }
-
       if (payload.status === "edit") {
         const doc = await this.postsRef.doc(payload.articleId).get()
         const images = doc.data().images
         payload.images = payload.images.concat(images)
         payload.comments = doc.data().comments
+      } else {
+        payload.created = today
       }
       await this.postsRef.doc(`${articleId}`).set(payload, { merge: true })
       res.json({
@@ -162,7 +163,7 @@ export default class BlogController implements Controller {
       const postsRef = this.postsRef
       const queryArr = req.body
       const authLevel = res.locals.authLevel
-      function categoryEditPromise(arr: any[], index: string | number): Promise<any> {
+      function categoryEditPromise(arr: any[], index: number): Promise<any> {
         return new Promise(async function (resolve, reject) {
           const query = arr[index]
           let targetPath: string[]
@@ -344,17 +345,13 @@ export default class BlogController implements Controller {
               reject()
               break
           }
-
-
-
-
         })
       }
       async function runner(arr: any[]) {
         try {
           const promises: Promise<any>[] = []
           for (const index in arr) {
-            promises.push(categoryEditPromise(arr, index))
+            promises.push(categoryEditPromise(arr, Number(index)))
           }
           await Promise.all(promises)
           return res.sendStatus(200)
@@ -392,14 +389,18 @@ export default class BlogController implements Controller {
       .doc(_id)
       .get()
       .then((doc: DocumentSnapshot) => {
-        const contents: any[] = doc.data().content
+        const contents = doc.data().content
         contents.content.forEach((item: any) => {
-          if (item.content !== undefined) {
+          if (item.content === undefined) {
+            // do nothing
+          } else {
             for (const index in item.content) {
-              item.content[index].attrs.src = item.content[index].attrs.src.replace(
-                "temp/",
-                `blog/${_id}/`,
-              )
+              if (item.content[index].type === "image") {
+                item.content[index].attrs.src = item.content[index].attrs.src.replace(
+                  "temp/",
+                  `blog/${_id}/`,
+                )
+              }
             }
           }
         })
@@ -499,7 +500,7 @@ export default class BlogController implements Controller {
       .doc(articleId)
       .get()
       .then((doc: DocumentSnapshot) => {
-        const filtered = doc.data().comments.filter((e: any) => e._id != - commentId)
+        const filtered = doc.data().comments.filter((e: any) => e._id !== commentId)
         return new Promise((resolve, reject) => {
           resolve(filtered)
         })
@@ -584,9 +585,10 @@ export default class BlogController implements Controller {
 
   private getToday(): string {
     const date = new Date()
-    return `${date.getFullYear()}.${`0${date.getMonth() + 1}`.slice(
+    const today = `${date.getFullYear()}${`0${date.getMonth() + 1}`.slice(
       -2,
-    )}.${`0${date.getDate()}`.slice(-2)}`
+    )}${`0${date.getDate()}`.slice(-2)}`
+    return today
   }
 
   private pad(n: number, width: number): string {

@@ -87,7 +87,9 @@ export default class AuthenticationController implements Controller {
         if (err) {
           return next(new ExceptionLogger("AuthController.loggingIn", err))
         }
-        if (!user || !user.authenticate(loginData.password)) return next(new WrongCredentialsException())
+        if (!user || !user.authenticate(loginData.password)) {
+          return next(new WrongCredentialsException())
+        }
         try {
           const tokenRes = this.createToken(user)
           const token = tokenRes.token

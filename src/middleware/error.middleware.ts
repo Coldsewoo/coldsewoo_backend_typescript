@@ -4,7 +4,8 @@ import { HttpException } from '../exceptions/HttpException'
 function errorMiddleware(error: HttpException, req: Request, res: Response, next: NextFunction) {
   const status = error.status || 500
   const message = error.message || 'Something went wrong'
-  res.status(status).send({ status, message })
+  const type = error.type || "UnexpectedError"
+  res.status(status).json({ message, type })
 }
 
 export default errorMiddleware

@@ -13,9 +13,6 @@ class CreateUserDto {
 
   @Validate(IsValidEmail)
   public email: string
-
-  @Validate(IsValidRoles)
-  public role: string
 }
 
 export default CreateUserDto

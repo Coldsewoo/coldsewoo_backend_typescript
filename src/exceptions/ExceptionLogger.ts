@@ -8,6 +8,6 @@ export default class ExceptionLogger extends HttpException {
     message.push(`\n----END----`)
     message = message.join("")
     console.log(message)
-    super(500, error.message)
+    super(500, error.message, "ExceptionLogger")
   }
 }

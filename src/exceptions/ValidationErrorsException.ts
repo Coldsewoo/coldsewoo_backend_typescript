@@ -7,12 +7,12 @@ export class ValidationErrors extends HttpException {
       message.push(`${err.errors[errors].properties.message}`)
     }
     const returnMessage = message.join(", ")
-    super(400, `${returnMessage}`)
+    super(400, `${returnMessage}`, "ValidationError")
   }
 }
 
 export class ValidationError extends HttpException {
   constructor(errmsg: string, value: string) {
-    super(400, `${errmsg} '${value}' already exists!`)
+    super(400, `${errmsg} '${value}' already exists!`, "ValidationError")
   }
 }

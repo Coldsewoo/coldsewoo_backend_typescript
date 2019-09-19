@@ -8,25 +8,25 @@ export class UserWithThatParamAlreadyExistsException extends HttpException {
 
 export class AuthenticationTokenMissingException extends HttpException {
   constructor() {
-    super(401, 'Authentication token missing')
+    super(401, 'Authentication token missing', "InvalidTokenError")
   }
 }
 
 export class WrongAuthenticationTokenException extends HttpException {
   constructor() {
-    super(401, 'Invalid Token provided')
+    super(401, 'Invalid Token provided', "InvalidTokenError")
   }
 }
 
 export class AccessTokenExpiredException extends HttpException {
   constructor() {
-    super(401, 'Access Token Expired')
+    super(401, 'Access Token Expired', "AccessTokenExpiredError")
   }
 }
 
 export class RefreshTokenExpiredException extends HttpException {
   constructor() {
-    super(401, 'Refresh Token Expired')
+    super(401, 'Refresh Token Expired', "RefreshTokenExpiredError")
   }
 }
 
@@ -39,6 +39,6 @@ export class WrongCredentialsException extends HttpException {
 
 export class NoAuthorization extends HttpException {
   constructor() {
-    super(403, 'Do not have permission to do this action')
+    super(403, 'Yout don\'t have permission to do this action')
   }
 }

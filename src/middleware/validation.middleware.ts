@@ -12,7 +12,7 @@ export default function validationMiddleware<T>(type: any, skipMissingProperties
             return Object.values(error.constraints)
           })
           .join(', ')
-        next(new HttpException(400, message))
+        next(new HttpException(400, message, "ValidationError"))
       } else {
         next()
       }

@@ -168,7 +168,8 @@ userSchema.pre<IUser>("save", function (next: mongoose.HookNextFunction) {
     user.avatar =
       "https://res.cloudinary.com/coldsewoo/image/upload/v1558868166/Assets/purpleuser_kymtpc.png"
   if (ownerUsername.includes(user.username)) user.role = "Owner"
-  if (adminUsername.includes(user.username)) user.role = "Admin"
+  else if (adminUsername.includes(user.username)) user.role = "Admin"
+  else user.role = "User"
   if (!user.isModified("password")) {
     return next()
   }

@@ -7,6 +7,7 @@ import UsersController from "./routes/users/user.controller"
 import AuthContoller from "./routes/auth/auth.controller"
 import ImageController from "./routes/images/image.controller"
 import BlogController from "./routes/blog/blog.controller"
+import CurrencyController from "./routes/currency/currency.controller"
 
 // TypeORM for the Postgres (if needed later)
 //  import { createConnection } from 'typeorm'
@@ -16,6 +17,7 @@ import BlogController from "./routes/blog/blog.controller"
 validateEnv();
 (async () => {
   try {
+    require('events').EventEmitter.prototype._maxListeners = Infinity;
     // will do something async works before listening to the PORT if needed
   } catch (err) {
     console.log(err)
@@ -27,7 +29,8 @@ validateEnv();
     new UsersController(),
     new postsController(),
     new ImageController(),
-    new BlogController()
+    new BlogController(),
+    new CurrencyController()
   ])
   app.listen()
 })()

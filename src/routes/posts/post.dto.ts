@@ -1,12 +1,21 @@
-import { IsString } from 'class-validator'
+import { IsString, IsUrl } from 'class-validator'
 
 export default class CreatePostDto {
   @IsString()
-  public username: string
+  public filter: string
+
+  @IsUrl({
+    require_protocol: true,
+    require_valid_protocol: true
+  })
+  public imageURL: string
 
   @IsString()
-  public userNickname: string
+  public imagepId: string
 
-  @IsString()
-  public userAvatar: string
+  @IsUrl({
+    require_protocol: true,
+    require_valid_protocol: true
+  })
+  public thumbnail: string
 }

@@ -21,8 +21,8 @@ export default class App {
     this.initializeMiddlewares()
     this.initilizeRateLimiterRedis()
     this.initializeControllers(controllers)
-    this.initializeErrorHandling()
     this.connetToDatabase()
+    this.initializeErrorHandling()
   }
 
   public listen() {
@@ -58,7 +58,7 @@ export default class App {
   }
 
   private initializeControllers(controllers: Controller[]): void {
-    controllers.forEach((controller) => {
+    controllers.forEach((controller: Controller) => {
       this.app.use('/', controller.router)
     })
   }
@@ -68,7 +68,7 @@ export default class App {
   }
 
   private initilizeRateLimiterRedis() {
-    const redisClient = redis.createClient(redisConfig)
+    const redisClient: redis.RedisClient = redis.createClient(redisConfig)
     redisClient.on('connect', () => {
       console.log('Connected to Redis')
     })
@@ -78,7 +78,7 @@ export default class App {
       duration: redisConfig.duration,
     })
 
-    const rateLimiterMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    const rateLimiterMiddleware = (req: Request, res: Response, next: NextFunction): void => {
       rateLimiterRedis
         .consume(req.ip)
         .then(() => next())
@@ -90,6 +90,7 @@ export default class App {
   }
 
   private connetToDatabase = () => {
+    (<any>mongoose).Promise = global.Promise
     mongoose.set("useCreateIndex", true)
     mongoose.set("useFindAndModify", false)
     const MONGO_URI = process.env.MONGODB_LOCAL
