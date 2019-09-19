@@ -93,13 +93,12 @@ export default class App {
     (<any>mongoose).Promise = global.Promise
     mongoose.set("useCreateIndex", true)
     mongoose.set("useFindAndModify", false)
-    const MONGO_URI = process.env.MONGODB_LOCAL
+    const MONGO_URI = process.env.MONGODB_ATLAS
     mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     const mongodb = mongoose.connection
     mongodb.once("open", function () {
       console.log(`Mongoose connected to
        ${MONGO_URI}`)
     })
-
   }
 }
