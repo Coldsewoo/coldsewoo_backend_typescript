@@ -1,6 +1,6 @@
-import * as express from 'express'
-import * as nodemailer from "nodemailer"
-import * as smptTransport from 'nodemailer-smtp-transport'
+import express = require('express')
+import nodemailer = require("nodemailer")
+import smptTransport = require('nodemailer-smtp-transport')
 
 import { Request, Response, NextFunction } from 'express'
 import Controller from '../../interfaces/controller.interface'

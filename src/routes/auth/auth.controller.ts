@@ -1,5 +1,5 @@
-import * as express from 'express'
-import * as jwt from "jsonwebtoken"
+import express = require('express')
+import jwt = require("jsonwebtoken")
 import { Request, Response, NextFunction } from "express";
 // Exceptions
 import { ValidationErrors, ValidationError } from "../../exceptions/ValidationErrorsException"

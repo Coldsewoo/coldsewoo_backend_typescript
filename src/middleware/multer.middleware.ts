@@ -1,4 +1,4 @@
-import * as multer from "multer"
+import multer = require("multer")
 
 const storage = multer.memoryStorage()
 export const multerUploads = multer({

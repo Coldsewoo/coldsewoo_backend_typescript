@@ -1,4 +1,4 @@
-import * as mongoose from "mongoose"
+import mongoose = require("mongoose")
 
 export interface IUserDocument extends mongoose.Document {
   follower?: string[]

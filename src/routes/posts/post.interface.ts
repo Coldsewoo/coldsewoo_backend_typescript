@@ -1,4 +1,4 @@
-import * as mongoose from "mongoose"
+import mongoose = require("mongoose")
 
 export interface IPostDocument extends mongoose.Document {
   username: string

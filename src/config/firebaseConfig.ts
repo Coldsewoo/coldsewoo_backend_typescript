@@ -1,4 +1,4 @@
-import * as admin from 'firebase-admin'
+import admin = require('firebase-admin')
 
 const serviceAccountKey = {
   type: process.env.FIREBASE_TYPE,

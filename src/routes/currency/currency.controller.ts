@@ -1,4 +1,4 @@
-import * as express from 'express'
+import express = require('express')
 const axios = require("axios").default
 import { Request, Response, NextFunction } from "express"
 import Controller from 'interfaces/controller.interface'

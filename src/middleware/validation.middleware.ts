@@ -1,6 +1,6 @@
 import { plainToClass } from 'class-transformer'
 import { validate, ValidationError } from 'class-validator'
-import * as express from 'express'
+import express = require('express')
 import { HttpException } from '../exceptions/HttpException'
 
 export default function validationMiddleware<T>(type: any, skipMissingProperties = false): express.RequestHandler {

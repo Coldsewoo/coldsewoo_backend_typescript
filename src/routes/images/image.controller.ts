@@ -1,8 +1,8 @@
-import * as express from "express"
+import express = require("express")
 import { Request, Response, NextFunction } from "express"
 import { v2 } from "cloudinary"
-import * as utils from "util"
-import * as request from "request"
+import utils = require("util")
+import request = require("request")
 
 import { multerUploads } from "../../middleware/multer.middleware"
 import { cldnaryConfig } from "../../config/cloudinaryConfig"
@@ -137,7 +137,7 @@ export default class ImageController implements Controller {
     function renameAsync(index: number): Promise<any> {
       return new Promise((resolve, reject) => {
         uploader.rename(pId[index], pIdTo[index], (err, res) => {
-          if(err) reject(err)
+          if (err) reject(err)
           else resolve()
         })
       })

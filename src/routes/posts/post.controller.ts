@@ -1,5 +1,5 @@
-import * as express from 'express'
-import * as mongoose from "mongoose"
+import express = require('express')
+import mongoose = require("mongoose")
 import { NextFunction, Request, Response } from 'express'
 import { RequestWithUser } from '../../interfaces/auth.interface'
 import ExceptionLogger from '../../exceptions/ExceptionLogger'

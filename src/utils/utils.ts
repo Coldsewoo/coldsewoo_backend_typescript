@@ -1,4 +1,4 @@
-import * as jwt from "jsonwebtoken"
+import jwt = require("jsonwebtoken")
 import { Response, NextFunction } from "express";
 import { AuthenticationTokenMissingException, WrongAuthenticationTokenException } from "../exceptions/HttpAuthException";
 import { RequestWithUser, TokenResponse } from "../interfaces/auth.interface";

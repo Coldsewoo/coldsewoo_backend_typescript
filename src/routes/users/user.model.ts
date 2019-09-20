@@ -1,6 +1,6 @@
-import * as mongoose from "mongoose"
+import mongoose = require("mongoose")
 import { Document, Schema, Model, model } from "mongoose"
-import * as bcrypt from 'bcrypt'
+import bcrypt = require('bcrypt')
 import { IUserDocument } from "./user.interface"
 
 export interface IUser extends IUserDocument {

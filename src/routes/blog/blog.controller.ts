@@ -1,6 +1,6 @@
-import * as express from "express"
+import express = require("express")
 import { Request, Response, NextFunction } from "express"
-import * as admin from "firebase-admin"
+import admin = require("firebase-admin")
 
 import util from "../../utils/utils"
 import userModel, { IUser } from '../users/user.model'

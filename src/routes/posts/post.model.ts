@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose'
+import mongoose = require('mongoose')
 import { Document, Schema, Model, model } from "mongoose"
 import { IPostDocument, CommentQuery, Comment, PostQuery } from './post.interface'
 import ExceptionLogger from "../../exceptions/ExceptionLogger"
