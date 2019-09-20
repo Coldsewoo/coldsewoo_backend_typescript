@@ -42,7 +42,6 @@ export default class UsersController implements Controller {
       const users = await this.User.find()
       res.send(users)
     } catch (err) {
-      console.log(err)
       next(new InternalServerError())
     }
   }

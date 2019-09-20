@@ -23,7 +23,6 @@ class UsersController {
                 res.send(users);
             }
             catch (err) {
-                console.log(err);
                 next(new HttpException_1.InternalServerError());
             }
         };

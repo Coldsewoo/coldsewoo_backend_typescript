@@ -71,7 +71,6 @@ export default class PostsController implements Controller {
       const result = await this.Post.createPost(body)
       res.json(result)
     } catch (err) {
-      console.log(err)
       next(new ExceptionLogger("postController.createPost", err))
     }
   }
@@ -102,7 +101,6 @@ export default class PostsController implements Controller {
           $pull: { comments: { _id: commentId } }
         },
         function (err, doc) {
-          console.log(doc)
           if (err) return next(new ExceptionLogger("postController.deleteComment", err))
         }
       )

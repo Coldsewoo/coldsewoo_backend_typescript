@@ -20,7 +20,6 @@ validateEnv();
     require('events').EventEmitter.prototype._maxListeners = Infinity;
     // will do something async works before listening to the PORT if needed
   } catch (err) {
-    console.log(err)
     process.exit(1)
   }
 

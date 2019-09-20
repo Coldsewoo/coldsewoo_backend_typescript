@@ -19,6 +19,7 @@ export default class App {
     this.initializeMiddlewares()
     this.initializeControllers(controllers)
     this.connetToDatabase()
+    this.initializeErrorHandler()
   }
 
   public listen() {
@@ -51,13 +52,16 @@ export default class App {
     this.app.use(express.urlencoded({ extended: false }))
     this.app.use(bodyParser.json())
     this.initilizeRateLimiterRedis()
-    this.app.use(errorMiddleware)
   }
 
   private initializeControllers(controllers: Controller[]): void {
     controllers.forEach((controller: Controller) => {
       this.app.use('/', controller.router)
     })
+  }
+  private initializeErrorHandler() {
+    this.app.use(errorMiddleware)
+
   }
 
   private initilizeRateLimiterRedis() {

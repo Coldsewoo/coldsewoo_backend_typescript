@@ -49,7 +49,6 @@ class PostsController {
                 res.json(result);
             }
             catch (err) {
-                console.log(err);
                 next(new ExceptionLogger_1.default("postController.createPost", err));
             }
         };
@@ -79,7 +78,6 @@ class PostsController {
                 const deleteRes = await post.updateOne({
                     $pull: { comments: { _id: commentId } }
                 }, function (err, doc) {
-                    console.log(doc);
                     if (err)
                         return next(new ExceptionLogger_1.default("postController.deleteComment", err));
                 });

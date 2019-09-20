@@ -21,7 +21,6 @@ validateEnv_1.default();
         // will do something async works before listening to the PORT if needed
     }
     catch (err) {
-        console.log(err);
         process.exit(1);
     }
     const app = new app_1.default([

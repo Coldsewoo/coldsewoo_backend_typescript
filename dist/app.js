@@ -26,6 +26,7 @@ class App {
         this.initializeMiddlewares();
         this.initializeControllers(controllers);
         this.connetToDatabase();
+        this.initializeErrorHandler();
     }
     listen() {
         const PORT = Number(process.env.PORT) || 5000;
@@ -52,12 +53,14 @@ class App {
         this.app.use(express.urlencoded({ extended: false }));
         this.app.use(bodyParser.json());
         this.initilizeRateLimiterRedis();
-        this.app.use(error_middleware_1.default);
     }
     initializeControllers(controllers) {
         controllers.forEach((controller) => {
             this.app.use('/', controller.router);
         });
+    }
+    initializeErrorHandler() {
+        this.app.use(error_middleware_1.default);
     }
     initilizeRateLimiterRedis() {
         const redisClient = redis.createClient(redisconfig_1.default);
