@@ -1,0 +1,1 @@
+{"version":3,"file":"emailConfig.js","sourceRoot":"","sources":["../../src/config/emailConfig.ts"],"names":[],"mappings":";;AAOA,MAAM,WAAW,GAAgB;IAC/B,IAAI,EAAE,OAAO,CAAC,GAAG,CAAC,UAAU;IAC5B,IAAI,EAAE,OAAO,CAAC,GAAG,CAAC,UAAU;IAC5B,OAAO,EAAE,OAAO,CAAC,GAAG,CAAC,aAAa;IAClC,IAAI,EAAE,OAAO,CAAC,GAAG,CAAC,UAAU;CAC7B,CAAA;AAED,kBAAe,WAAW,CAAA"}

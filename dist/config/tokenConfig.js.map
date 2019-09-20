@@ -1,0 +1,1 @@
+{"version":3,"file":"tokenConfig.js","sourceRoot":"","sources":["../../src/config/tokenConfig.ts"],"names":[],"mappings":";;AAOA,MAAM,WAAW,GAAgB;IAC/B,WAAW,EAAE,OAAO,CAAC,GAAG,CAAC,YAAY;IACrC,aAAa,EAAE,OAAO,CAAC,GAAG,CAAC,oBAAoB;IAC/C,SAAS,EAAE,MAAM,CAAC,OAAO,CAAC,GAAG,CAAC,UAAU,CAAC;IACzC,gBAAgB,EAAE,MAAM,CAAC,OAAO,CAAC,GAAG,CAAC,kBAAkB,CAAC;CACzD,CAAA;AAED,kBAAe,WAAW,CAAA"}

@@ -6,7 +6,7 @@
 package-lock.json
 
 # Transplied files
-/dist
+# /dist
 
 # VS Code
 .vscode
