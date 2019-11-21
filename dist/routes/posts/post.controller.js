@@ -44,7 +44,7 @@ class PostsController {
             try {
                 const postData = req.body;
                 const user = await this.User.findOne({ username: req.decoded.username });
-                const body = Object.assign({}, postData, { username: user.username, userNickname: user.nickname, userAvatar: user.avatar });
+                const body = Object.assign(Object.assign({}, postData), { username: user.username, userNickname: user.nickname, userAvatar: user.avatar });
                 const result = await this.Post.createPost(body);
                 res.json(result);
             }

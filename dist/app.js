@@ -12,13 +12,14 @@ const HttpException_1 = require("./exceptions/HttpException");
 class App {
     constructor(controllers) {
         this.connetToDatabase = () => {
+            ;
             mongoose.Promise = global.Promise;
-            mongoose.set("useCreateIndex", true);
-            mongoose.set("useFindAndModify", false);
+            mongoose.set('useCreateIndex', true);
+            mongoose.set('useFindAndModify', false);
             const MONGO_URI = process.env.MONGODB_ATLAS;
             mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
             const mongodb = mongoose.connection;
-            mongodb.once("open", function () {
+            mongodb.once('open', function () {
                 console.log(`Mongoose connected!`);
             });
         };
@@ -37,7 +38,12 @@ class App {
     initializeMiddlewares() {
         // CORS setting
         this.app.use((req, res, next) => {
-            res.header('Access-Control-Allow-Origin', 'https://coldsewoo.com');
+            const allowedOrigins = ['http://localhost:8080', 'https://coldsewoo.com'];
+            const origin = req.headers.origin;
+            if (allowedOrigins.indexOf(origin) > -1) {
+                res.setHeader('Access-Control-Allow-Origin', origin);
+            }
+            // res.header('Access-Control-Allow-Origin', 'coldsewoo.com, localhost')
             res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
             res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, x-access-token, Accept,Origin, Access-Control-Request-Method, Access-Control-Request-Headers');
             res.header('Access-Control-Max-Age', '3600');
@@ -70,7 +76,7 @@ class App {
         const rateLimiterRedis = new rate_limiter_flexible_1.RateLimiterRedis({
             storeClient: redisClient,
             points: redisconfig_1.default.points,
-            duration: redisconfig_1.default.duration,
+            duration: redisconfig_1.default.duration
         });
         const rateLimiterMiddleware = (req, res, next) => {
             rateLimiterRedis

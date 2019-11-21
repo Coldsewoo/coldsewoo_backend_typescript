@@ -508,7 +508,7 @@ class BlogController {
             try {
                 const postsRef = this.postsRef;
                 const { articleId, commentId } = req.params;
-                const payload = Object.assign({ username: req.decoded.username }, req.body, { commentId });
+                const payload = Object.assign(Object.assign({ username: req.decoded.username }, req.body), { commentId });
                 const User = await this.User.findOne({ username: req.decoded.username });
                 payload.userAvatar = User.avatar;
                 payload.userNickname = User.nickname;
