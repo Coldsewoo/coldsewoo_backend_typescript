@@ -50,7 +50,7 @@ export default class BlogController implements Controller {
       doc.docs.forEach((item: DocumentSnapshot) => {
         result.push(item.data())
       })
-      res.json(result)
+      res.json(result.reverse())
     } catch (err) {
       next(new ExceptionLogger("blogController.getArticles", err))
     }
@@ -151,7 +151,7 @@ export default class BlogController implements Controller {
       result.docs.forEach((doc: DocumentSnapshot) => {
         returnArr.push(doc.data())
       })
-      res.json(returnArr)
+      res.json(returnArr.reverse())
     } catch (err) {
       next(new ExceptionLogger("blogController.postCategories", err))
     }

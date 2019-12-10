@@ -22,7 +22,7 @@ class BlogController {
                 doc.docs.forEach((item) => {
                     result.push(item.data());
                 });
-                res.json(result);
+                res.json(result.reverse());
             }
             catch (err) {
                 next(new ExceptionLogger_1.default("blogController.getArticles", err));
@@ -120,7 +120,7 @@ class BlogController {
                 result.docs.forEach((doc) => {
                     returnArr.push(doc.data());
                 });
-                res.json(returnArr);
+                res.json(returnArr.reverse());
             }
             catch (err) {
                 next(new ExceptionLogger_1.default("blogController.postCategories", err));

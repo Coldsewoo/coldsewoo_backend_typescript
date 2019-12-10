@@ -1,7 +1,7 @@
 {
   "name": "typescript-express-postgresql-boilerplate",
   "email": "coldsewoo@gmail.com",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "boilerplate for backend based on typescript, express, postgresql",
   "main": "server.js",
   "scripts": {
