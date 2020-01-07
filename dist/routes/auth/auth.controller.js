@@ -90,7 +90,8 @@ class AuthenticationController {
                     return res.json(response);
                 }
                 catch (err) {
-                    next(new ExceptionLogger_1.default("AuthController.loggingIn", err));
+                    if (err)
+                        next(new ExceptionLogger_1.default("AuthController.loggingIn", err));
                 }
             });
         };
@@ -140,7 +141,8 @@ class AuthenticationController {
                         res.json(response);
                     }
                     catch (err) {
-                        next(new ExceptionLogger_1.default("AuthController.tokenRefresh", err));
+                        if (err)
+                            next(new ExceptionLogger_1.default("AuthController.tokenRefresh", err));
                     }
                 });
             });

@@ -32,13 +32,13 @@ export class RefreshTokenExpiredException extends HttpException {
 
 export class WrongCredentialsException extends HttpException {
   constructor() {
-    super(401, 'Wrong credentials provided')
+    super(401, 'Wrong credentials provided', 'WrongCredentialsError')
   }
 }
 
 
 export class NoAuthorization extends HttpException {
   constructor() {
-    super(403, 'Yout don\'t have permission to do this action')
+    super(403, 'Yout don\'t have permission to do this action', "NoAuthorizationError")
   }
 }

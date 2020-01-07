@@ -42,6 +42,8 @@ class PostsController {
         };
         this.createPost = async (req, res, next) => {
             try {
+                if (!req.decoded)
+                    return next(new HttpAuthException_1.NoAuthorization());
                 const postData = req.body;
                 const user = await this.User.findOne({ username: req.decoded.username });
                 const body = Object.assign(Object.assign({}, postData), { username: user.username, userNickname: user.nickname, userAvatar: user.avatar });
@@ -54,6 +56,8 @@ class PostsController {
         };
         this.addComment = async (req, res, next) => {
             try {
+                if (!req.decoded)
+                    return next(new HttpAuthException_1.NoAuthorization());
                 const decoded = req.decoded;
                 const body = req.body;
                 const user = await this.User.findOne({ username: decoded.username });
@@ -66,6 +70,8 @@ class PostsController {
         };
         this.deleteComment = async (req, res, next) => {
             try {
+                if (!req.decoded)
+                    return next(new HttpAuthException_1.NoAuthorization());
                 const decoded = req.decoded;
                 const authLevel = res.locals.authLevel;
                 const postId = mongoose.Types.ObjectId(req.body.post_id);
@@ -89,6 +95,8 @@ class PostsController {
         };
         this.deletePost = (req, res, next) => {
             try {
+                if (!req.decoded)
+                    return next(new HttpAuthException_1.NoAuthorization());
                 const postId = mongoose.Types.ObjectId(req.params._id);
                 const authLevel = res.locals.authLevel;
                 const username = req.decoded.username;
@@ -135,6 +143,8 @@ class PostsController {
         };
         this.modifyPost = async (req, res, next) => {
             try {
+                if (!req.decoded)
+                    return next(new HttpAuthException_1.NoAuthorization());
                 const username = req.decoded.username;
                 const body = req.body;
                 const _id = mongoose.Types.ObjectId(req.params._id);

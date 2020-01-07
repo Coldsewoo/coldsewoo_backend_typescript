@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const admin = require("firebase-admin");
+const bcrypt = require("bcrypt");
 const utils_1 = require("../../utils/utils");
 const user_model_1 = require("../users/user.model");
 const firebaseConfig_1 = require("../../config/firebaseConfig");
@@ -30,6 +31,8 @@ class BlogController {
         };
         this.postArticle = async (req, res, next) => {
             try {
+                if (!req.decoded)
+                    return next(new HttpAuthException_1.NoAuthorization());
                 const payload = Object.assign({ username: req.decoded.username, comments: [] }, req.body);
                 const User = await this.User.findOne({ username: req.decoded.username });
                 payload.headImageURL = User.avatar;
@@ -128,6 +131,8 @@ class BlogController {
         };
         this.editCategories = async (req, res, next) => {
             try {
+                if (!req.decoded)
+                    return next(new HttpAuthException_1.NoAuthorization());
                 const categoriesRef = this.categoriesRef;
                 const postsRef = this.postsRef;
                 const queryArr = req.body;
@@ -339,6 +344,8 @@ class BlogController {
         };
         this.deleteArticle = async (req, res, next) => {
             try {
+                if (!req.decoded)
+                    return next(new HttpAuthException_1.NoAuthorization());
                 const id = req.params.id;
                 const authLevel = res.locals.authLevel;
                 const username = req.decoded.username;
@@ -357,6 +364,8 @@ class BlogController {
         };
         this.renameImages = (req, res, next) => {
             const _id = req.params._id;
+            if (!req.decoded)
+                return next(new HttpAuthException_1.NoAuthorization());
             this.postsRef
                 .doc(_id)
                 .get()
@@ -392,7 +401,8 @@ class BlogController {
                     res.sendStatus(200);
                 });
             })
-                .catch(err => next(new ExceptionLogger_1.default("blogController.renameImages", err)));
+                .catch(err => { if (err)
+                next(new ExceptionLogger_1.default("blogController.renameImages", err)); });
         };
         this.getComments = (req, res, next) => {
             const articleId = req.params.id;
@@ -403,16 +413,23 @@ class BlogController {
                 const comments = docs.data().comments || [];
                 res.json(comments);
             })
-                .catch(err => next(new ExceptionLogger_1.default("postsController.getComments", err)));
+                .catch(err => { if (err)
+                next(new ExceptionLogger_1.default("postsController.getComments", err)); });
         };
         this.addComment = async (req, res, next) => {
             try {
                 const articleId = req.params.id;
-                const payload = Object.assign({ username: req.decoded.username }, req.body);
-                const User = await this.User.findOne({ username: req.decoded.username });
-                payload.userAvatar = User.avatar;
-                payload.userNickname = User.nickname;
-                payload.created = this.getToday();
+                const payload = req.body;
+                if (req.decoded) {
+                    const User = await this.User.findOne({ username: req.decoded.username });
+                    payload.userAvatar = User.avatar;
+                    payload.username = User.username;
+                    payload.userNickname = User.nickname;
+                }
+                else {
+                    payload.password = bcrypt.hashSync(payload.password, 10);
+                    payload.userAvatar = 'https://res.cloudinary.com/coldsewoo/image/upload/v1558868166/Assets/purpleuser_kymtpc.png';
+                }
                 payload.parent = articleId;
                 payload._id = [...Array(15)].map(() => Math.random().toString(36)[2]).join("");
                 payload.reply = [];
@@ -422,13 +439,11 @@ class BlogController {
                 res.sendStatus(200);
             }
             catch (err) {
-                next(new ExceptionLogger_1.default("blogController.addComment", err));
+                next(new ExceptionLogger_1.default("blogController.addCommentLoggedin", err));
             }
         };
         this.deleteCommentReply = (req, res, next) => {
             const { articleId, commentId, replyId } = req.params;
-            const username = req.decoded.username;
-            const authLevel = res.locals.authLevel;
             const postsRef = this.postsRef;
             postsRef
                 .doc(articleId)
@@ -446,8 +461,18 @@ class BlogController {
                     if (comment.reply[j]._id === replyId)
                         innerIndex = j;
                 }
+                const reply = comment.reply[innerIndex];
+                let hasAuth = false;
+                if (req.decoded && (req.decoded.username === reply.username || res.locals.authLevel > 1))
+                    hasAuth = true;
+                else if (bcrypt.compareSync(req.body.password, reply.password))
+                    hasAuth = true;
                 comment.reply.splice(innerIndex, 1);
                 return new Promise((resolve, reject) => {
+                    if (!hasAuth) {
+                        next(new HttpAuthException_1.NoAuthorization());
+                        reject();
+                    }
                     resolve(comments);
                 });
             })
@@ -457,7 +482,8 @@ class BlogController {
                 });
                 res.sendStatus(200);
             })
-                .catch(err => next(new ExceptionLogger_1.default("blogController.deleteCommentReply", err)));
+                .catch(err => { if (err)
+                next(new ExceptionLogger_1.default("blogController.deleteCommentReply", err)); });
         };
         this.deleteComment = (req, res, next) => {
             const postsRef = this.postsRef;
@@ -467,7 +493,17 @@ class BlogController {
                 .get()
                 .then((doc) => {
                 const filtered = doc.data().comments.filter((e) => e._id !== commentId);
+                const comment = doc.data().comments.filter((e) => e._id === commentId)[0];
+                let hasAuth = false;
+                if (req.decoded && (req.decoded.username === comment.username || res.locals.authLevel > 1))
+                    hasAuth = true;
+                else if (bcrypt.compareSync(req.body.password, comment.password))
+                    hasAuth = true;
                 return new Promise((resolve, reject) => {
+                    if (!hasAuth) {
+                        next(new HttpAuthException_1.NoAuthorization());
+                        reject();
+                    }
                     resolve(filtered);
                 });
             })
@@ -477,9 +513,11 @@ class BlogController {
                 });
                 res.sendStatus(200);
             })
-                .catch(err => next(new ExceptionLogger_1.default("postsController.deleteComment", err)));
+                .catch(err => { if (err)
+                next(new ExceptionLogger_1.default("postsController.deleteComment", err)); });
         };
         this.editComment = (req, res, next) => {
+            const { comment, password } = req.body;
             const postsRef = this.postsRef;
             const { articleId, commentId } = req.params;
             postsRef
@@ -487,12 +525,31 @@ class BlogController {
                 .get()
                 .then((doc) => {
                 const comments = doc.data().comments;
+                let targetComment;
                 for (let i = 0; i < comments.length; i++) {
                     if (comments[i]._id === commentId) {
-                        comments[i].message = req.body.message;
+                        targetComment = comments[i];
+                    }
+                }
+                let hasAuth = false;
+                if (targetComment.anonymous) {
+                    if (bcrypt.compareSync(password, targetComment.password)) {
+                        targetComment.comment = comment;
+                        hasAuth = true;
+                    }
+                }
+                else {
+                    const { username } = req.decoded;
+                    if (username === targetComment.username) {
+                        targetComment.comment = comment;
+                        hasAuth = true;
                     }
                 }
                 return new Promise((resolve, reject) => {
+                    if (!hasAuth) {
+                        next(new HttpAuthException_1.NoAuthorization());
+                        reject();
+                    }
                     resolve(comments);
                 });
             })
@@ -502,17 +559,24 @@ class BlogController {
                 });
                 res.sendStatus(200);
             })
-                .catch(err => next(new ExceptionLogger_1.default("postsController.editComment", err)));
+                .catch(err => { if (err)
+                next(new ExceptionLogger_1.default("postsController.editComment", err)); });
         };
         this.addCommentReply = async (req, res, next) => {
             try {
+                const payload = req.body;
                 const postsRef = this.postsRef;
                 const { articleId, commentId } = req.params;
-                const payload = Object.assign(Object.assign({ username: req.decoded.username }, req.body), { commentId });
-                const User = await this.User.findOne({ username: req.decoded.username });
-                payload.userAvatar = User.avatar;
-                payload.userNickname = User.nickname;
-                payload.created = this.getToday();
+                if (req.decoded) {
+                    const User = await this.User.findOne({ username: req.decoded.username });
+                    payload.userAvatar = User.avatar;
+                    payload.username = User.username;
+                    payload.userNickname = User.nickname;
+                }
+                else {
+                    payload.password = bcrypt.hashSync(payload.password, 10);
+                    payload.userAvatar = 'https://res.cloudinary.com/coldsewoo/image/upload/v1558868166/Assets/purpleuser_kymtpc.png';
+                }
                 payload.parent = articleId;
                 payload._id = [...Array(15)].map(() => Math.random().toString(36)[2]).join("");
                 return new Promise((resolve, reject) => {
@@ -535,7 +599,8 @@ class BlogController {
                         });
                         res.sendStatus(200);
                     })
-                        .catch(err => next(new ExceptionLogger_1.default("postsController.addCommentReply", err)));
+                        .catch(err => { if (err)
+                        next(new ExceptionLogger_1.default("postsController.addCommentReply", err)); });
                 });
             }
             catch (err) {

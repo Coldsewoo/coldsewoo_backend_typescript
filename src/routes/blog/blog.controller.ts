@@ -1,6 +1,8 @@
 import express = require("express")
 import { Request, Response, NextFunction } from "express"
 import admin = require("firebase-admin")
+import bcrypt = require('bcrypt')
+
 
 import util from "../../utils/utils"
 import userModel, { IUser } from '../users/user.model'
@@ -15,6 +17,21 @@ type QuerySnapShot = FirebaseFirestore.QuerySnapshot
 type QueryDocumentSnapshot = FirebaseFirestore.QueryDocumentSnapshot
 type Document = FirebaseFirestore.DocumentData
 type DocumentSnapshot = FirebaseFirestore.DocumentSnapshot
+type commentPayload = {
+  userNickname?: string,
+  password?: string,
+  comment: string,
+  articleId: string,
+  anonymous: string,
+  userAvatar: string,
+  created: Date,
+  parent: string,
+  _id: string,
+  reply?: Array<string>,
+  username?: string,
+  commentId?: string
+}
+
 export default class BlogController implements Controller {
   public path = "/blog"
   public router = express.Router()
@@ -58,6 +75,7 @@ export default class BlogController implements Controller {
 
   private postArticle = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
+      if(!req.decoded) return next(new NoAuthorization())
       const payload = {
         username: req.decoded.username,
         comments: [],
@@ -159,6 +177,7 @@ export default class BlogController implements Controller {
 
   private editCategories = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
+      if(!req.decoded) return next(new NoAuthorization())
       const categoriesRef = this.categoriesRef
       const postsRef = this.postsRef
       const queryArr = req.body
@@ -369,6 +388,7 @@ export default class BlogController implements Controller {
 
   private deleteArticle = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
+      if(!req.decoded) return next(new NoAuthorization())
       const id = req.params.id
       const authLevel = res.locals.authLevel
       const username = req.decoded.username
@@ -385,6 +405,7 @@ export default class BlogController implements Controller {
 
   private renameImages = (req: RequestWithUser, res: Response, next: NextFunction) => {
     const _id = req.params._id
+    if(!req.decoded) return next(new NoAuthorization())
     this.postsRef
       .doc(_id)
       .get()
@@ -421,7 +442,7 @@ export default class BlogController implements Controller {
             res.sendStatus(200)
           })
       })
-      .catch(err => next(new ExceptionLogger("blogController.renameImages", err)))
+      .catch(err => {if(err) next(new ExceptionLogger("blogController.renameImages", err))})
   }
 
   private getComments = (req: Request, res: Response, next: NextFunction) => {
@@ -433,20 +454,23 @@ export default class BlogController implements Controller {
         const comments: any[] = docs.data().comments || []
         res.json(comments)
       })
-      .catch(err => next(new ExceptionLogger("postsController.getComments", err)))
+      .catch(err => {if(err) next(new ExceptionLogger("postsController.getComments", err))})
   }
 
   private addComment = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const articleId = req.params.id
-      const payload: any = {
-        username: req.decoded.username,
-        ...req.body
+      const payload:commentPayload = req.body
+      if(req.decoded) {
+        const User: IUser = await this.User.findOne({ username: req.decoded.username })
+        payload.userAvatar = User.avatar
+        payload.username = User.username
+        payload.userNickname = User.nickname
+      } else {
+        payload.password = bcrypt.hashSync(payload.password, 10)
+        payload.userAvatar = 'https://res.cloudinary.com/coldsewoo/image/upload/v1558868166/Assets/purpleuser_kymtpc.png'
       }
-      const User: IUser = await this.User.findOne({ username: req.decoded.username })
-      payload.userAvatar = User.avatar
-      payload.userNickname = User.nickname
-      payload.created = this.getToday()
+
       payload.parent = articleId
       payload._id = [...Array(15)].map(() => Math.random().toString(36)[2]).join("")
       payload.reply = []
@@ -456,14 +480,12 @@ export default class BlogController implements Controller {
       })
       res.sendStatus(200)
     } catch (err) {
-      next(new ExceptionLogger("blogController.addComment", err))
+      next(new ExceptionLogger("blogController.addCommentLoggedin", err))
     }
   }
 
   private deleteCommentReply = (req: RequestWithUser, res: Response, next: NextFunction) => {
     const { articleId, commentId, replyId } = req.params
-    const username = req.decoded.username
-    const authLevel = res.locals.authLevel
     const postsRef = this.postsRef
     postsRef
       .doc(articleId)
@@ -479,8 +501,16 @@ export default class BlogController implements Controller {
         for (let j = 0; j < comment.reply.length; j++) {
           if (comment.reply[j]._id === replyId) innerIndex = j
         }
+        const reply = comment.reply[innerIndex]
+        let hasAuth = false
+        if(req.decoded && (req.decoded.username === reply.username || res.locals.authLevel > 1)) hasAuth = true
+        else if(bcrypt.compareSync(req.body.password, reply.password)) hasAuth = true
         comment.reply.splice(innerIndex, 1)
         return new Promise((resolve, reject) => {
+          if(!hasAuth) {
+            next(new NoAuthorization())
+            reject()
+           }
           resolve(comments)
         })
       })
@@ -490,7 +520,7 @@ export default class BlogController implements Controller {
         })
         res.sendStatus(200)
       })
-      .catch(err => next(new ExceptionLogger("blogController.deleteCommentReply", err)))
+      .catch(err => {if(err) next(new ExceptionLogger("blogController.deleteCommentReply", err))})
   }
 
   private deleteComment = (req: RequestWithUser, res: Response, next: NextFunction) => {
@@ -501,7 +531,15 @@ export default class BlogController implements Controller {
       .get()
       .then((doc: DocumentSnapshot) => {
         const filtered = doc.data().comments.filter((e: any) => e._id !== commentId)
+        const comment = doc.data().comments.filter((e:any) => e._id === commentId)[0]
+        let hasAuth = false
+        if(req.decoded && (req.decoded.username === comment.username || res.locals.authLevel > 1)) hasAuth = true
+        else if(bcrypt.compareSync(req.body.password, comment.password)) hasAuth = true
         return new Promise((resolve, reject) => {
+          if(!hasAuth) {
+            next(new NoAuthorization())
+            reject()
+           }
           resolve(filtered)
         })
       })
@@ -511,10 +549,11 @@ export default class BlogController implements Controller {
         })
         res.sendStatus(200)
       })
-      .catch(err => next(new ExceptionLogger("postsController.deleteComment", err)))
+      .catch(err => {if(err) next(new ExceptionLogger("postsController.deleteComment", err))})
   }
 
   private editComment = (req: RequestWithUser, res: Response, next: NextFunction) => {
+    const {comment , password} = req.body
     const postsRef = this.postsRef
     const { articleId, commentId } = req.params
     postsRef
@@ -522,12 +561,30 @@ export default class BlogController implements Controller {
       .get()
       .then((doc: DocumentSnapshot) => {
         const comments: any[] = doc.data().comments
+        let targetComment:any;
         for (let i = 0; i < comments.length; i++) {
           if (comments[i]._id === commentId) {
-            comments[i].message = req.body.message
+            targetComment = comments[i]
+          }
+        }
+        let hasAuth:boolean= false
+        if(targetComment.anonymous) {
+          if(bcrypt.compareSync(password, targetComment.password)) {
+            targetComment.comment = comment
+            hasAuth = true
+          }
+        } else {
+          const {username} = req.decoded
+          if(username === targetComment.username) {
+            targetComment.comment = comment
+            hasAuth = true
           }
         }
         return new Promise((resolve, reject) => {
+          if(!hasAuth) {
+           next(new NoAuthorization())
+           reject()
+          }
           resolve(comments)
         })
       })
@@ -537,26 +594,28 @@ export default class BlogController implements Controller {
         })
         res.sendStatus(200)
       })
-      .catch(err => next(new ExceptionLogger("postsController.editComment", err)))
+      .catch(err => {if(err) next(new ExceptionLogger("postsController.editComment", err))})
   }
 
   private addCommentReply = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
+      const payload:commentPayload = req.body
       const postsRef = this.postsRef
       const { articleId, commentId } = req.params
-      const payload = {
-        username: req.decoded.username,
-        ...req.body,
-        commentId
+ 
+      if(req.decoded) {
+        const User: IUser = await this.User.findOne({ username: req.decoded.username })
+        payload.userAvatar = User.avatar
+        payload.username = User.username
+        payload.userNickname = User.nickname
+      } else {
+        payload.password = bcrypt.hashSync(payload.password, 10)
+        payload.userAvatar = 'https://res.cloudinary.com/coldsewoo/image/upload/v1558868166/Assets/purpleuser_kymtpc.png'
       }
-      const User = await this.User.findOne({ username: req.decoded.username })
-      payload.userAvatar = User.avatar
-      payload.userNickname = User.nickname
 
-
-      payload.created = this.getToday()
       payload.parent = articleId
       payload._id = [...Array(15)].map(() => Math.random().toString(36)[2]).join("")
+      
       return new Promise((resolve, reject) => {
         resolve(payload)
       })
@@ -576,7 +635,7 @@ export default class BlogController implements Controller {
               })
               res.sendStatus(200)
             })
-            .catch(err => next(new ExceptionLogger("postsController.addCommentReply", err)))
+            .catch(err => {if(err) next(new ExceptionLogger("postsController.addCommentReply", err))})
         })
     } catch (err) {
       next(new ExceptionLogger("postsController.addCommentReply", err))

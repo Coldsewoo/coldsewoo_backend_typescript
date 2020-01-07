@@ -33,13 +33,13 @@ class RefreshTokenExpiredException extends HttpException_1.HttpException {
 exports.RefreshTokenExpiredException = RefreshTokenExpiredException;
 class WrongCredentialsException extends HttpException_1.HttpException {
     constructor() {
-        super(401, 'Wrong credentials provided');
+        super(401, 'Wrong credentials provided', 'WrongCredentialsError');
     }
 }
 exports.WrongCredentialsException = WrongCredentialsException;
 class NoAuthorization extends HttpException_1.HttpException {
     constructor() {
-        super(403, 'Yout don\'t have permission to do this action');
+        super(403, 'Yout don\'t have permission to do this action', "NoAuthorizationError");
     }
 }
 exports.NoAuthorization = NoAuthorization;

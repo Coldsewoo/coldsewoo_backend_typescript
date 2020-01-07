@@ -60,6 +60,7 @@ export default class PostsController implements Controller {
 
   private createPost = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
+      if(!req.decoded) return next(new NoAuthorization())
       const postData: CreatePostDto = req.body
       const user = await this.User.findOne({ username: req.decoded.username })
       const body: PostQuery = {
@@ -77,6 +78,7 @@ export default class PostsController implements Controller {
 
   private addComment = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
+      if(!req.decoded) return next(new NoAuthorization())
       const decoded = req.decoded
       const body: CommentQuery = req.body
       const user: IUser = await this.User.findOne({ username: decoded.username })
@@ -89,6 +91,7 @@ export default class PostsController implements Controller {
 
   private deleteComment = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
+      if(!req.decoded) return next(new NoAuthorization())
       const decoded = req.decoded
       const authLevel = res.locals.authLevel
       const postId = mongoose.Types.ObjectId(req.body.post_id)
@@ -113,6 +116,8 @@ export default class PostsController implements Controller {
 
   private deletePost = (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
+      if(!req.decoded) return next(new NoAuthorization())
+
       const postId = mongoose.Types.ObjectId(req.params._id)
       const authLevel = res.locals.authLevel
       const username = req.decoded.username
@@ -156,6 +161,8 @@ export default class PostsController implements Controller {
 
   private modifyPost = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
+      if(!req.decoded) return next(new NoAuthorization())
+
       const username: string = req.decoded.username
       const body: PostQuery = req.body
       const _id: mongoose.Types.ObjectId = mongoose.Types.ObjectId(req.params._id)

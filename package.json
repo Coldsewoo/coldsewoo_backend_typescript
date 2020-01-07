@@ -1,8 +1,8 @@
 {
-  "name": "typescript-express-postgresql-boilerplate",
+  "name": "coldsewoo_backend_typescript",
   "email": "coldsewoo@gmail.com",
-  "version": "1.0.1",
-  "description": "boilerplate for backend based on typescript, express, postgresql",
+  "version": "2.2.0",
+  "description": "typescript backend for blog",
   "main": "server.js",
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node ./dist/server.js\"",

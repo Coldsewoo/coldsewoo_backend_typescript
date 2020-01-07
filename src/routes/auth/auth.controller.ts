@@ -107,7 +107,7 @@ export default class AuthenticationController implements Controller {
           }
           return res.json(response)
         } catch (err) {
-          next(new ExceptionLogger("AuthController.loggingIn", err))
+          if(err) next(new ExceptionLogger("AuthController.loggingIn", err))
         }
       })
 
@@ -153,7 +153,7 @@ export default class AuthenticationController implements Controller {
             }
             res.json(response)
           } catch (err) {
-            next(new ExceptionLogger("AuthController.tokenRefresh", err))
+            if(err) next(new ExceptionLogger("AuthController.tokenRefresh", err))
           }
         })
     })
