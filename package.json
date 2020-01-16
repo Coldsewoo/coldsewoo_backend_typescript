@@ -1,7 +1,7 @@
 {
   "name": "coldsewoo_backend_typescript",
   "email": "coldsewoo@gmail.com",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "typescript backend for blog",
   "main": "server.js",
   "scripts": {

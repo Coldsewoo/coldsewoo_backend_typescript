@@ -43,7 +43,7 @@ export default class App {
         'Content-Type, Content-Length, x-access-token, Accept,Origin, Access-Control-Request-Method, Access-Control-Request-Headers'
       )
       res.header('Access-Control-Max-Age', '3600')
-
+      
       // intercept OPTIONS method
       if (req.method === 'OPTIONS') {
         res.sendStatus(200)

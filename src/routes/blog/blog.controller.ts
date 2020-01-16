@@ -81,7 +81,6 @@ export default class BlogController implements Controller {
         comments: [],
         ...req.body
       }
-
       const User: IUser = await this.User.findOne({ username: req.decoded.username })
       payload.headImageURL = User.avatar
       payload.nickname = User.nickname

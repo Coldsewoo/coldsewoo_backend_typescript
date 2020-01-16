@@ -133,7 +133,6 @@ export default class ImageController implements Controller {
     const _id = req.params._id
     const pId: string[] = req.body.map((e: any) => e.pId)
     const pIdTo = pId.map((e) => e.replace("temp/", `blog/${_id}/`))
-
     function renameAsync(index: number): Promise<any> {
       return new Promise((resolve, reject) => {
         uploader.rename(pId[index], pIdTo[index], (err, res) => {
@@ -143,7 +142,6 @@ export default class ImageController implements Controller {
       })
     }
     const renamePromise: Promise<any>[] = pId.map((_: any, index: number) => renameAsync(index))
-
     Promise.all(renamePromise)
       .then(() => {
         res.sendStatus(200)
