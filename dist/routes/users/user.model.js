@@ -7,7 +7,7 @@ const userSchema = new mongoose_1.Schema({
     username: {
         type: String,
         required: [true, "Username is required!"],
-        match: [/^.{4,12}$/, "Should be 4-12 characters!"],
+        match: [/^.{4,12}$/, "Username should be 4-12 characters!"],
         trim: true,
         unique: true,
         lowercase: true,
