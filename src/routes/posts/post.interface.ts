@@ -12,7 +12,7 @@ export interface IPostDocument extends mongoose.Document {
   likesCount?: number
   likePressed?: boolean
   filter?: string
-  created?: number
+  created?: any
   id?: number
   thumbnail?: string
   comments?: Comment[]
